@@ -74,9 +74,9 @@ test <- overall %>% filter(dataset == 'test')
 
 #Fitting a Conditional Inference Tree
 set.seed <- (1987)
-fit <- cforest(as.factor(Survived) ~ Pclass + Age + Fare + Sex + Embarked + Title + Family_Size + FamilyID + Cabin_Pos + Age_Class + Ticket_Group + Ticket_Number,
+fit <- cforest(as.factor(Survived) ~ Pclass + Age + Fare + Sex + Embarked + Title + Family_Size + FamilyID + Cabin_Pos + Age_Class + Ticket_Group,
                data = train,
-               controls = cforest_unbiased(ntree = 5000, mtry = 3))
+               controls = cforest_unbiased(ntree = 3000, mtry = 3))
 
 #Viewing a sample tree
 party:::prettytree(fit@ensemble[[1]], names(fit@data@get("input")))
@@ -89,4 +89,4 @@ submit <- data.frame(PassengerId = test$PassengerId,
 
 prop.table(table(submit$Survived))
 
-write.csv(submit,'submit10.csv',row.names = FALSE)
+write.csv(submit,'submit.csv',row.names = FALSE)
