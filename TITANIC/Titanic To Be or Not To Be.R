@@ -1,5 +1,8 @@
 
-setwd("~/Documents/KAGGLE/TITANIC")
+# Set working direcotory
+this.dir <- dirname(parent.frame(2)$ofile)
+setwd(this.dir)
+
 library(dplyr)
 library(rpart)
 library(rpart.plot)
@@ -74,9 +77,9 @@ test <- overall %>% filter(dataset == 'test')
 
 #Fitting a Conditional Inference Tree
 set.seed <- (1987)
-fit <- cforest(as.factor(Survived) ~ Pclass + Age + Fare + Sex + Embarked + Title + Family_Size + FamilyID + Cabin_Pos + Age_Class + Ticket_Group,
+fit <- cforest(as.factor(Survived) ~ Pclass + Age + Fare + Sex + Embarked + Title + Family_Size + FamilyID + Cabin_Pos + Cabin_Num + Ticket_Group,
                data = train,
-               controls = cforest_unbiased(ntree = 3000, mtry = 3))
+               controls = cforest_unbiased(ntree = 5000, mtry = 3))
 
 #Viewing a sample tree
 party:::prettytree(fit@ensemble[[1]], names(fit@data@get("input")))
@@ -89,4 +92,4 @@ submit <- data.frame(PassengerId = test$PassengerId,
 
 prop.table(table(submit$Survived))
 
-write.csv(submit,'submit.csv',row.names = FALSE)
+write.csv(submit,paste0('submit',Sys.Date(),'.csv'),row.names = FALSE)
