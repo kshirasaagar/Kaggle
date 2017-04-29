@@ -37,6 +37,8 @@ typical_age <- overall %>%
   group_by(Title, Sex,  Pclass, Embarked) %>%
   summarise(Age = median(Age, na.rm = TRUE))
 
+typical_age[is.na(typical_age)] <- '22.0'
+
 overall_missing_age <- overall[is.na(overall$Age),] %>% 
   select(-Age) %>%
   inner_join(typical_age, by = c("Title","Sex","Pclass", "Embarked"))
@@ -49,8 +51,6 @@ overall$Embarked <- as.factor(overall$Embarked)
 
 overall$Fare[is.na(overall$Fare)] <- median(overall$Fare, na.rm = TRUE)
 
-overall$
-
 #Extract Cabin Num from Cabin
 overall$Cabin[is.na(overall$Cabin)] <- ''
 overall$Cabin_Num<-sapply(as.character(overall$Cabin),function(x) strsplit(x,'[A-Z]')[[1]][2])
@@ -62,8 +62,6 @@ overall$Cabin_Pos[overall$Cabin_Num<50]<-'Front'
 overall$Cabin_Pos[overall$Cabin_Num>=50 & overall$Cabin_Num<100]<-'Middle'
 overall$Cabin_Pos[overall$Cabin_Num>=100]<-'End'
 overall$Cabin_Pos<-factor(overall$Cabin_Pos)
-
-overall$Age_Class <- overall$Age * overall$Pclass
 
 overall$Ticket_Group <- gsub("[[[:punct:][:space:][:digit:]]","",overall$Ticket)
 overall$Ticket_Number <- substr(gsub("[[[:punct:][:space:][:alpha:]]","",overall$Ticket),1,1)
