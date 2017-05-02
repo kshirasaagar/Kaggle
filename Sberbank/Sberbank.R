@@ -30,13 +30,23 @@ test$dataset <- 'test'
 #Just guessing based on logical distributions
 test$price_doc <- test$full_sq * 135300 + (rnorm(nrow(test), mean = 6274, sd = 4740))
 
+#Now find the price by area
+train$state[is.na(train$state)] <- 0
+
+price_by_area <- train %>% 
+                       group_by(state, sub_area, product_type) %>% 
+                       summarise(med_price = median(price_doc, na.rm = TRUE)/median(full_sq, na.rm = TRUE))
+
+test2 <- merge(test, price_by_area, by = c('state','sub_area','product_type'), all.x = TRUE)
+test2$med_price[is.na(test2$med_price)] <- 135300
+
+test2$price_doc <- test2$full_sq * test2$med_price + (rnorm(nrow(test), mean = 6274, sd = 4740))
+
 #Overall dataset for easier missing value and outlier treatment
 overall <- rbind(train, test)
 
 #Feature Importance - Attempt 2
 features <- overall %>% select(-timestamp,-id, -price_doc, -dataset) %>% names()
-
-
 
 #Feature Importance - Attempt 1
 #CART to identify top 100 features
@@ -57,7 +67,12 @@ glm_fit <- glm(price_doc ~ .,
 
 prediction <- predict(glm_fit, test)
 
+
+#Submission Codes
+
 submit <- data.frame(id = test$id,
                      price_doc = prediction)
+
+submit <- test2 %>% select(id, price_doc)
 
 write.csv(submit,paste0('submit',Sys.Date(),'.csv'),row.names = FALSE)
