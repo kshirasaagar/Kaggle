@@ -3,6 +3,8 @@
 this.dir <- dirname(parent.frame(2)$ofile)
 setwd(this.dir)
 
+#setwd("~/Documents/KAGGLE/Kaggle/Sberbank")
+
 library(dplyr)
 library(rpart)
 library(rpart.plot)
@@ -20,9 +22,9 @@ macro <- read.csv('macro.csv', stringsAsFactors = TRUE)
 train <- merge(train, macro, by = 'timestamp')
 test <- merge(test, macro, by = 'timestamp')
 
-summary(train$price_doc)
-summary(train$full_sq)
-summary(train$price_doc/train$full_sq)
+# summary(train$price_doc)
+# summary(train$full_sq)
+# summary(train$price_doc/train$full_sq)
 
 train$dataset <- 'train'
 test$dataset <- 'test'
@@ -59,7 +61,9 @@ test2$med_price[is.na(test2$med_price)] <- 135300
 
 test2$price_doc <- test2$full_sq * test2$med_price + (rnorm(nrow(test), mean = 6274, sd = 4740))
 
-#Feature Importance - Attempt 1
+####################################################################
+
+#GUESS 3 - Feature Importance using CART
 #CART to identify top 100 features
 fit <- rpart(price_doc ~ .,
              data = train[-c(1,2,13)],
@@ -73,13 +77,12 @@ colnames(variables) <- c('importance','variable')
 train_subset <- train %>% select(price_doc, one_of(variables$variable))
 
 glm_fit <- glm(price_doc ~ .,
-               family = 'poisson',
                data = train_subset)
 
 prediction <- predict(glm_fit, test)
+prediction[is.na(prediction)] <- mean(prediction, na.rm = TRUE)
+prediction[prediction <= 0] <- mean(prediction, na.rm = TRUE)
 
-#Feature Importance - Attempt 2
-features <- overall %>% select(-timestamp,-id, -price_doc, -dataset) %>% names()
 
 
 #Submission Codes
