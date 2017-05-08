@@ -83,13 +83,14 @@ prediction <- predict(glm_fit, test)
 prediction[is.na(prediction)] <- mean(prediction, na.rm = TRUE)
 prediction[prediction <= 0] <- mean(prediction, na.rm = TRUE)
 
+prediction <- test$full_sq * 135300 + (prediction/1000)
 
+####################################################################
 
 #Submission Codes
-
 submit <- data.frame(id = test$id,
                      price_doc = prediction)
 
 submit <- test2 %>% select(id, price_doc)
 
-write.csv(submit,paste0('submit2',Sys.Date(),'.csv'),row.names = FALSE)
+write.csv(submit,paste0('submit',Sys.Date(),'.csv'),row.names = FALSE)
